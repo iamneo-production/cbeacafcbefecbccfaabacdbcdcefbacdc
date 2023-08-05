@@ -19,67 +19,36 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @RunWith(SpringRunner.class)
 public class SpringApplicationTests {
 
-	@Autowired
-    private MockMvc mockMvc;	
+	
+    WebDriver driver = new ChromeDriver();
 
-	//Add A New Task
-	@Test
-    public void test_case1() throws Exception {
-		
-		String dataOne = "{\"taskId\":\"12211\",\"taskHolderName\":\"Gowthaman M\",\"taskDate\":\"4/15/2021\",\"taskName\":\"Spring Projects\",\"taskStatus\":\"In Progress\"}";
-	 	mockMvc.perform(MockMvcRequestBuilders.post("/saveTask")
-	 			.contentType(MediaType.APPLICATION_JSON)
-	 			.content(dataOne)
-	 			.accept(MediaType.APPLICATION_JSON))
-	        	.andExpect(status().isOk())
-	        	.andReturn();
-	 	
+    @Given("the user is on the Home page")
+    public void the_user_is_on_the_home_page() {
+        driver.get("https://example.com");
     }
-	
-	
-	//Get All Task
-	@Test
-    public void test_case2() throws Exception {
-		
-	 	mockMvc.perform(MockMvcRequestBuilders.get("/alltasks")
-	 			.contentType(MediaType.APPLICATION_JSON)
-	 			.accept(MediaType.APPLICATION_JSON))
-	        	.andExpect(status().isOk())
-		        .andExpect(MockMvcResultMatchers.jsonPath("$[*].houseNo").exists())
-		        .andExpect(MockMvcResultMatchers.jsonPath("$").isNotEmpty())
-	        	.andReturn();
-	 	
-    }
-	
-	//Get A Task By ID
-	@Test
-	public void test_case3() throws Exception {
-		
-		mockMvc.perform(MockMvcRequestBuilders.get("/getTask")
-				.param("taskId","12211")
-				.contentType(MediaType.APPLICATION_JSON)
-		 		.accept(MediaType.APPLICATION_JSON))
-		        .andExpect(status().isOk())
-		        .andExpect(jsonPath("$.taskHolderName").value("Gowthaman M"))
-		        .andExpect(jsonPath("$.taskDate").value("4/15/2021"))
-		        .andExpect(jsonPath("$.taskName").value("Spring Projects"))
-				.andExpect(jsonPath("$.taskStatus").value("In Progress"))
-		        .andReturn();
-			
-	}
-	
-	//Delete A Task
-	@Test
-	public void test_case4() throws Exception {
-		
-		mockMvc.perform(MockMvcRequestBuilders.get("/deleteTask")
-				.param("taskId","12211")
-				.contentType(MediaType.APPLICATION_JSON)
-		 		.accept(MediaType.APPLICATION_JSON))
-		        .andExpect(status().isOk())
-		        .andReturn();
-			
-	}
 
+    @When("the user navigates to the Login page")
+    public void the_user_navigates_to_the_login_page() {
+        driver.findElement(By.linkText("Login")).click();
+    }
+
+    @And("the user enters username and password")
+    public void the_user_enters_username_and_password() {
+        driver.findElement(By.id("username")).sendKeys("your_username");
+        driver.findElement(By.id("password")).sendKeys("your_password");
+        driver.findElement(By.id("login-button")).click();
+    }
+
+    @Then("the successful login message is displayed")
+    public void the_successful_login_message_is_displayed() {
+        String expectedMessage = "You have successfully logged into your account! There are multiple discount offers waiting for you!!";
+        String actualMessage = driver.findElement(By.id("success-message")).getText();
+        Assert.assertEquals(expectedMessage, actualMessage);
+    }
+
+    @After
+    public void closeBrowser() {
+        driver.quit();
+    }
 
 }
